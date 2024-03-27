@@ -1,5 +1,6 @@
 package com.jwt.example.services.impl;
 
+import com.jwt.example.services.JWTService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,7 +14,7 @@ import java.util.Date;
 import java.util.function.Function;
 
 @Service
-public class JWTServiceImpl {
+public class JWTServiceImpl implements JWTService {
 
     public String generateToken(UserDetails userDetails){
         return Jwts.builder().setSubject(userDetails.getUsername())
@@ -31,18 +32,18 @@ public class JWTServiceImpl {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
+    private SecretKey getSignKey() {
+        byte[] key = Decoders.BASE64.decode("3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b");
+        return Keys.hmacShaKeyFor(key);
+    }
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
     }
 
-    private SecretKey getSignKey() {
-        byte[] key = Decoders.BASE64.decode("3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b");
-        return Keys.hmacShaKeyFor(key);
-    }
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUserName(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenValid(token));
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token){
