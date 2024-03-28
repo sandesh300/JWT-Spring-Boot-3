@@ -1,6 +1,7 @@
 package com.jwt.example.services.impl;
 
 import com.jwt.example.dto.JwtAuthenticationResponse;
+import com.jwt.example.dto.RefreshTokenRequest;
 import com.jwt.example.dto.SignInRequest;
 import com.jwt.example.dto.SignUpRequest;
 import com.jwt.example.model.Role;
@@ -55,4 +56,18 @@ public JwtAuthenticationResponse signin(SignInRequest signInRequest){
     jwtAuthenticationResponse.setRefreshToken(refreshToken);
     return jwtAuthenticationResponse;
 }
+
+ public JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest){
+    String userEmail = jwtService.extractUserName(refreshTokenRequest.getToken());
+    User user = (User) userRepository.findByEmail(userEmail).orElseThrow();
+    if(jwtService.isTokenValid(refreshTokenRequest.getToken(), user)){
+        var jwt = jwtService.generateToken(user);
+
+        JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
+        jwtAuthenticationResponse.setToken(jwt);
+        jwtAuthenticationResponse.setRefreshToken(refreshTokenRequest.getToken());
+        return jwtAuthenticationResponse;
+    }
+    return null;
+ }
 }

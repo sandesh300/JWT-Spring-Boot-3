@@ -1,6 +1,7 @@
 package com.jwt.example.controller;
 
 import com.jwt.example.dto.JwtAuthenticationResponse;
+import com.jwt.example.dto.RefreshTokenRequest;
 import com.jwt.example.dto.SignInRequest;
 import com.jwt.example.dto.SignUpRequest;
 import com.jwt.example.model.User;
@@ -28,4 +29,10 @@ public class AuthenticationController {
     public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SignInRequest signInRequest){
         return ResponseEntity.ok(authenticationService.signin(signInRequest));
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtAuthenticationResponse> refresh(@RequestBody RefreshTokenRequest refreshTokenRequest){
+        return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest));
+    }
+
 }
